@@ -58,3 +58,12 @@ def get_total_variation(input_img, shape, smoothing=1.5):
         smoothed_terms = tf.pow(left_term + right_term, smoothing / 2.)
 
         return tf.reduce_sum(smoothed_terms) / size
+
+def load_img(path, height, width):
+    img = io.imread(path) / 255.0
+    ny = height
+    nx = width
+    if len(img.shape) < 3:
+      img = np.dstack((img, img, img))
+
+    return transform.resize(img, (ny, nx)), [ny, nx, 3]
