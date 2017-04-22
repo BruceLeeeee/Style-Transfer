@@ -4,17 +4,27 @@ from vgg16 import *
 import numpy as np
 from utils import *
 
+flags = tf.app.flags
+conf = flags.FLAGS
+
 class slover(object):
-    def __init__(self, generator, image_dimension):
-        self.input_dir =""
-        self.out_dir =""
-        self.style_dir =""
-        self.image_height = image_dimension['height']
-        self.image_width = image_dimension['width']
+    def __init__(self, generator):
+        self.input_dir = conf.input_dir
+        self.out_dir = conf.out_dir
+        self.style_dir = conf.style_dir
+        self.num_epoch = conf.num_epoch
+        self.image_height = conf.image_height
+        self.image_width = conf.image_width
+        self.learning_rate = conf.learning_rate
+        self.content_weights = conf.content_weights
+        self.style_weights = conf.style_weights
+        self.tv_weights = conf.tv_weights
         self.net = generator
 
 
-    def train(self, epochs, learning_rate, content_layer, content_weights, style_layers, style_weights, tv_weights):
+    def train(self):
+        content_layer = 'conv3_3'
+        style_layers = {'conv1_2': .25, 'conv2_2': .25, 'conv3_3': .25, 'conv4_3': .25}
         style_img, style_img_shape = load_img(self.style_dir, height=self.image_height, width=self.image_width)
         style_img_shape = [1] + style_img_shape
         style_img = style_img.reshape(style_img_shape).astype(np.float32)
@@ -37,13 +47,13 @@ class slover(object):
             input_model.build(output_img, shape=style_img_shape[1:])
 
         with tf.name_scope('loss'):
-            content_loss = get_content_loss(input_model, content_model, content_layer) * content_weights
-            style_loss = get_style_loss(input_model, style_model, style_layers) * style_weights
-            tv_loss = get_total_variation(output_img, style_img_shape) * tv_weights
+            content_loss = get_content_loss(input_model, content_model, content_layer) * self.content_weights
+            style_loss = get_style_loss(input_model, style_model, style_layers) * self.style_weights
+            tv_loss = get_total_variation(output_img, style_img_shape) * self.tv_weights
             loss = content_loss + style_loss + tv_loss
 
         with tf.name_scope('optimization'):
-            optimizer = tf.train.AdamOptimizer(learning_rate)
+            optimizer = tf.train.AdamOptimizer(self.learning_rate)
             trainable_variables = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope='generator')
             gradients = optimizer.compute_gradients(loss, trainable_variables)
             updated_weights = optimizer.apply_gradients(gradients)
@@ -54,7 +64,7 @@ class slover(object):
         coord = tf.train.Coordinator()
         threads = tf.train.start_queue_runners(coord=coord)
 
-        for step in range(epochs):
+        for step in range(self.num_epoch):
             self.net.is_training = True
 
             input_img = sess.run(example) / 255.
