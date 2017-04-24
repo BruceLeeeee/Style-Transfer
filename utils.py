@@ -67,3 +67,7 @@ def load_img(path, height, width):
       img = np.dstack((img, img, img))
 
     return transform.resize(img, (ny, nx)), [ny, nx, 3]
+
+def render(img, path_out):
+    clipped_img = np.clip(img, 0., 1.)
+    toimage(np.reshape(clipped_img, img.shape[1:])).save(path_out)
