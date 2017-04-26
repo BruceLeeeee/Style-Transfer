@@ -70,7 +70,7 @@ class Generator:
             stride = [1, stride, stride, 1]
 
             upsample = tf.nn.conv2d_transpose(inputs, filters, output_shape=out_shape, strides=stride)
-            bias = tf.Variable(tf.constant(0.1, shape=[out_size]))
+            bias = tf.Variable(tf.constant(.1, shape=[out_size]))
             upsample = tf.nn.bias_add(upsample, bias)
             upsample = self.__instance_normalize(upsample)
 
@@ -79,8 +79,13 @@ class Generator:
     # simple version of residual block
     def __residual_block(self, inputs, filters_shape, stride, name):
         with tf.variable_scope(name):
-            conv1 = self.__conv_block(inputs, filters_shape, stride=stride, name='c1')
+            conv1 = self.__conv_block(inputs, filters_shape, stride=stride, name='c1', padding='VALID')
+            conv2 = self.__conv_block(conv1, filters_shape, stride=stride, name='c2', padding='VALID', activation=None)
 
-            return inputs + self.__conv_block(conv1, filters_shape, stride=stride, name='c2', activation=None)
+            batch = inputs.get_shape().as_list()[0]
+            patch_height, patch_width, num_filters = conv2.get_shape().as_list()[1:]
+            out_shape = tf.stack([batch, patch_height, patch_width, num_filters])
+            cropped_inputs = tf.slice(inputs, [0, 1, 1, 0], out_shape)
 
+            return conv2 + cropped_inputs
 

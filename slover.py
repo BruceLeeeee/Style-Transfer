@@ -7,7 +7,7 @@ from utils import *
 flags = tf.app.flags
 conf = flags.FLAGS
 
-class slover(object):
+class Slover(object):
     def __init__(self, generator):
         self.input_dir = conf.input_dir
         self.out_dir = conf.out_dir
@@ -34,16 +34,16 @@ class slover(object):
         output_img = self.net.output
 
         with tf.name_scope('vgg16_style'):
-            style_model = vgg16.Vgg16()
+            style_model = Vgg16()
             style_model.build(style_img, shape=style_img_shape[1:])
 
         with tf.name_scope('vgg16_content'):
             content_placeholder = tf.placeholder(dtype=tf.float32, shape=style_img_shape)
-            content_model = vgg16.Vgg16()
+            content_model = Vgg16()
             content_model.build(input_img_placeholder, shape=style_img_shape[1:])
 
         with tf.name_scope('vgg16_input'):
-            input_model = vgg16.Vgg16()
+            input_model = Vgg16()
             input_model.build(output_img, shape=style_img_shape[1:])
 
         with tf.name_scope('loss'):
@@ -62,7 +62,7 @@ class slover(object):
         sess = tf.Session()
         sess.run(tf.global_variables_initializer())
         coord = tf.train.Coordinator()
-        threads = tf.train.start_queue_runners(coord=coord)
+        threads = tf.train.start_queue_runners(sess=sess, coord=coord)
 
         for step in range(self.num_epoch):
             self.net.is_training = True

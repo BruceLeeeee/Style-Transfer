@@ -1,6 +1,6 @@
 import tensorflow as tf
-import generator
-from solver import *
+from generator import *
+from slover import *
 
 flags = tf.app.flags
 
@@ -21,8 +21,8 @@ conf = flags.FLAGS
 def main(_):
 
     with tf.variable_scope('generator'):
-        gen = generator.Generator()
-        slover = slover.Trainer(gen)
+        gen = Generator()
+        slover = Slover(gen)
         slover.train()
 
 if __name__ == '__main__':

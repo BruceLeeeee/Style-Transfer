@@ -44,6 +44,7 @@ class Vgg16:
             green - VGG_MEAN[1],
             red - VGG_MEAN[2],
         ])
+        shape[2] = num_channels
         assert bgr.get_shape().as_list()[1:] == shape
 
         self.conv1_1 = self.conv_layer(bgr, "conv1_1")
@@ -67,18 +68,18 @@ class Vgg16:
         self.conv5_1 = self.conv_layer(self.pool4, "conv5_1")
         self.conv5_2 = self.conv_layer(self.conv5_1, "conv5_2")
         self.conv5_3 = self.conv_layer(self.conv5_2, "conv5_3")
-        self.pool5 = self.max_pool(self.conv5_3, 'pool5')
+        #self.pool5 = self.max_pool(self.conv5_3, 'pool5')
 
-        self.fc6 = self.fc_layer(self.pool5, "fc6")
-        assert self.fc6.get_shape().as_list()[1:] == [4096]
-        self.relu6 = tf.nn.relu(self.fc6)
+        #self.fc6 = self.fc_layer(self.pool5, "fc6")
+        #assert self.fc6.get_shape().as_list()[1:] == [4096]
+        #self.relu6 = tf.nn.relu(self.fc6)
 
-        self.fc7 = self.fc_layer(self.relu6, "fc7")
-        self.relu7 = tf.nn.relu(self.fc7)
+        #self.fc7 = self.fc_layer(self.relu6, "fc7")
+        #self.relu7 = tf.nn.relu(self.fc7)
 
-        self.fc8 = self.fc_layer(self.relu7, "fc8")
+        #self.fc8 = self.fc_layer(self.relu7, "fc8")
 
-        self.prob = tf.nn.softmax(self.fc8, name="prob")
+        #self.prob = tf.nn.softmax(self.fc8, name="prob")
 
         self.data_dict = None
         print(("build model finished: %ds" % (time.time() - start_time)))

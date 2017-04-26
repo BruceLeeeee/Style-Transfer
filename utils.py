@@ -1,6 +1,11 @@
 
 import tensorflow as tf
 from functools import reduce
+import numpy as np
+import skimage
+import skimage.io
+import skimage.transform
+from scipy.misc import toimage
 
 
 def get_content_loss(input_img, content_img, layer):
@@ -15,7 +20,7 @@ def get_style_loss(input_model, style_model, layers):
         #layers = {'conv1_2': .25, 'conv2_2': .25, 'conv3_3': .25, 'conv4_3': .25}
         style_layer_loss = [get_style_loss_for_layer(input_model, style_model, layer) for layer in layers.keys()]
         style_layer_loss = tf.convert_to_tensor(style_layer_loss)
-        style_weights = tf.constant(list(layers.value()))
+        style_weights = tf.constant(list(layers.values()))
         style_loss = tf.multiply(style_weights, style_layer_loss)
 
         return tf.reduce_sum(style_loss)
